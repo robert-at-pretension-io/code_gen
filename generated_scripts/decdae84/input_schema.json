@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "AdditionInput",
+    "description": "JSON schema for the input of a function/script that adds two numbers.",
+    "type": "object",
+    "properties": {
+        "number1": {
+            "description": "The first number to be added.",
+            "type": "number"
+        },
+        "number2": {
+            "description": "The second number to be added.",
+            "type": "number"
+        },
+        "language": {
+            "description": "The programming language of the script.",
+            "type": "string",
+            "enum": [
+                "Python",
+                "JavaScript",
+                "Java",
+                "C++",
+                "Ruby",
+                "Go",
+                "C#",
+                "PHP",
+                "Swift"
+            ]
+        }
+    },
+    "required": [
+        "number1",
+        "number2",
+        "language"
+    ],
+    "additionalProperties": false
+}

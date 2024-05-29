@@ -1,0 +1,488 @@
+2024-05-29 19:35:21,304 - INFO - Requirements provided as a direct string.
+2024-05-29 19:35:28,681 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-05-29 19:35:28,687 - INFO - Gathering requirements: 
+User: write a script that adds two numbers
+LLM: Which programming language would you like the script to be written in?
+2024-05-29 19:35:34,868 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-05-29 19:35:34,870 - INFO - Generated input schema: {'$schema': 'http://json-schema.org/draft-07/schema#', 'title': 'AdditionInput', 'description': 'JSON schema for the input of a function/script that adds two numbers.', 'type': 'object', 'properties': {'number1': {'description': 'The first number to be added.', 'type': 'number'}, 'number2': {'description': 'The second number to be added.', 'type': 'number'}, 'language': {'description': 'The programming language of the script.', 'type': 'string', 'enum': ['Python', 'JavaScript', 'Java', 'C++', 'Ruby', 'Go', 'C#', 'PHP', 'Swift']}}, 'required': ['number1', 'number2', 'language'], 'additionalProperties': False}
+2024-05-29 19:35:36,504 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-05-29 19:35:36,505 - INFO - Generated output schema: {'$schema': 'http://json-schema.org/draft-07/schema#', 'type': 'object', 'properties': {'sum': {'type': 'number', 'description': 'The result of adding two numbers provided as input.'}}, 'required': ['sum']}
+2024-05-29 19:35:36,506 - INFO - Saved input schema to generated_scripts/decdae84/input_schema.json
+2024-05-29 19:35:36,506 - INFO - Saved output schema to generated_scripts/decdae84/output_schema.json
+2024-05-29 19:35:36,506 - INFO - Generating unit tests with prompt:
+
+        Create a series of unit tests for a function/script. 
+        The function/script specification:
+        {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "AdditionInput",
+    "description": "JSON schema for the input of a function/script that adds two numbers.",
+    "type": "object",
+    "properties": {
+        "number1": {
+            "description": "The first number to be added.",
+            "type": "number"
+        },
+        "number2": {
+            "description": "The second number to be added.",
+            "type": "number"
+        },
+        "language": {
+            "description": "The programming language of the script.",
+            "type": "string",
+            "enum": [
+                "Python",
+                "JavaScript",
+                "Java",
+                "C++",
+                "Ruby",
+                "Go",
+                "C#",
+                "PHP",
+                "Swift"
+            ]
+        }
+    },
+    "required": [
+        "number1",
+        "number2",
+        "language"
+    ],
+    "additionalProperties": false
+}
+        The expected output schema:
+        {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "sum": {
+            "type": "number",
+            "description": "The result of adding two numbers provided as input."
+        }
+    },
+    "required": [
+        "sum"
+    ]
+}
+        The tests should cover typical cases, edge cases, and erroneous cases. 
+        Provide the tests in Python unittest format.
+
+        Note that these schemas are the expected input and output for the function/script that meet these requirements:
+        
+User: write a script that adds two numbers
+LLM: Which programming language would you like the script to be written in?
+User: done
+
+        You MUST return a json object that contains the unit tests in Python unittest format, Make sure that the escaped code can be put through the 'unescape_code' function to get the results. Put those tests in the 'unit_tests' key of the json object.
+
+        Example:
+        {"unit_tests": '\nimport unittest\nfrom unittest.mock import patch\nfrom generated_script import add_event_to_google_calendar  # Assuming your function is named this\n\nclass TestAddEventToGoogleCalendar(unittest.TestCase):\n\n    def setUp(self):\n        self.valid_input = {\n            "apiKey": "valid_api_key",\n            "oauthToken": "valid_oauth_token",\n            "calendarId": "primary",\n            "event": {\n                "summary": "Test Event",\n                "description": "This is a test event",\n                "start": {\n                    "dateTime": "2023-10-01T09:00:00-07:00",\n                    "timeZone": "America/Los_Angeles"\n                },\n                "end": {\n                    "dateTime": "2023-10-01T10:00:00-07:00",\n                    "timeZone": "America/Los_Angeles"\n                },\n                "attendees": [\n                    {\n                        "email": "attendee1@example.com",\n                        "displayName": "Attendee 1",\n                        "responseStatus": "accepted"\n                    }\n                ],\n                "reminders": {\n                    "useDefault": False,\n                    "overrides": [\n                        {\n                            "method": "email",\n                            "minutes": 30\n                        },\n                        {\n                            "method": "popup",\n                            "minutes": 10\n                        }\n                    ]\n                }\n            }\n        }\n\n        self.valid_output = {\n            "status": "success",\n            "eventId": "unique_event_id"\n        }\n\n        self.error_output = {\n            "status": "failed",\n            "error": {\n                "code": 401,\n                "message": "Invalid OAuth token"\n            }\n        }\n\n    @patch(\'generated_script.create_google_calendar_event\')  # Mock whatever function actually makes the API call\n    def test_add_event_success(self, mock_create_google_calendar_event):\n        mock_create_google_calendar_event.return_value = self.valid_output\n        \n        response = add_event_to_google_calendar(self.valid_input)\n        self.assertEqual(response, self.valid_output)\n\n    @patch(\'generated_script.create_google_calendar_event\')\n    def test_add_event_invalid_oauth(self, mock_create_google_calendar_event):\n        mock_create_google_calendar_event.return_value = self.error_output\n        \n        response = add_event_to_google_calendar(self.valid_input)\n        self.assertEqual(response, self.error_output)\n\n    def test_missing_api_key(self):\n        invalid_input = dict(self.valid_input)\n        invalid_input.pop(\'apiKey\')\n        \n        with self.assertRaises(KeyError):\n            add_event_to_google_calendar(invalid_input)\n\n    def test_missing_oauth_token(self):\n        invalid_input = dict(self.valid_input)\n        invalid_input.pop(\'oauthToken\')\n        \n        with self.assertRaises(KeyError):\n            add_event_to_google_calendar(invalid_input)\n\n    def test_missing_event_summary(self):\n        invalid_input = dict(self.valid_input)\n        invalid_input[\'event\'].pop(\'summary\')\n        \n        with self.assertRaises(KeyError):\n            add_event_to_google_calendar(invalid_input)\n            \n    def test_invalid_datetime_format(self):\n        invalid_input = dict(self.valid_input)\n        invalid_input[\'event\'][\'start\'][\'dateTime\'] = "invalid-datetime-format"\n        \n        with self.assertRaises(ValueError):\n            add_event_to_google_calendar(invalid_input)\n\n    @patch(\'generated_script.create_google_calendar_event\')\n    def test_missing_optional_fields(self, mock_create_google_calendar_event):\n        input_without_optional = {\n            "apiKey": "valid_api_key",\n            "oauthToken": "valid_oauth_token",\n            "calendarId": "primary",\n            "event": {\n                "summary": "Test Event",\n                "start": {\n                    "dateTime": "2023-10-01T09:00:00-07:00",\n                    "timeZone": "America/Los_Angeles"\n                },\n                "end": {\n                    "dateTime": "2023-10-01T10:00:00-07:00",\n                    "timeZone": "America/Los_Angeles"\n                }\n            }\n        }\n        mock_create_google_calendar_event.return_value = {\n            "status": "success",\n            "eventId": "unique_event_id"\n        }\n        \n        response = add_event_to_google_calendar(input_without_optional)\n        self.assertEqual(response, {\n            "status": "success",\n            "eventId": "unique_event_id"\n        })\n\n\nif __name__ == \'__main__\':\n    unittest.main()\n'}
+
+        Make special note that the tests should be escaped like they are in the example.
+
+        Assume that the function being tested has the same name as used in the unit tests. This function will be defined in: 'generated_script.py' so the tests should import the functions from that file.
+        
+2024-05-29 19:35:51,478 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-05-29 19:35:51,480 - INFO - Raw LLM response: {"unit_tests": "\nimport unittest\nfrom generated_script import add_two_numbers\n\nclass TestAddTwoNumbers(unittest.TestCase):\n\n    def test_positive_numbers(self):\n        input_data = {\n            \"number1\": 10,\n            \"number2\": 20,\n            \"language\": \"Python\"\n        }\n        expected_output = {\n            \"sum\": 30\n        }\n        self.assertEqual(add_two_numbers(input_data), expected_output)\n\n    def test_negative_numbers(self):\n        input_data = {\n            \"number1\": -10,\n            \"number2\": -5,\n            \"language\": \"Python\"\n        }\n        expected_output = {\n            \"sum\": -15\n        }\n        self.assertEqual(add_two_numbers(input_data), expected_output)\n\n    def test_mixed_sign_numbers(self):\n        input_data = {\n            \"number1\": 15,\n            \"number2\": -5,\n            \"language\": \"Python\"\n        }\n        expected_output = {\n            \"sum\": 10\n        }\n        self.assertEqual(add_two_numbers(input_data), expected_output)\n\n    def test_zero_sum(self):\n        input_data = {\n            \"number1\": 0,\n            \"number2\": 0,\n            \"language\": \"Python\"\n        }\n        expected_output = {\n            \"sum\": 0\n        }\n        self.assertEqual(add_two_numbers(input_data), expected_output)\n\n    def test_large_numbers(self):\n        input_data = {\n            \"number1\": 1e15,\n            \"number2\": 1e15,\n            \"language\": \"Python\"\n        }\n        expected_output = {\n            \"sum\": 2e15\n        }\n        self.assertEqual(add_two_numbers(input_data), expected_output)\n\n    def test_missing_number1(self):\n        input_data = {\n            \"number2\": 10,\n            \"language\": \"Python\"\n        }\n        with self.assertRaises(KeyError):\n            add_two_numbers(input_data)\n\n    def test_missing_number2(self):\n        input_data = {\n            \"number1\": 10,\n            \"language\": \"Python\"\n        }\n        with self.assertRaises(KeyError):\n            add_two_numbers(input_data)\n\n    def test_missing_language(self):\n        input_data = {\n            \"number1\": 10,\n            \"number2\": 10,\n        }\n        with self.assertRaises(KeyError):\n            add_two_numbers(input_data)\n\n    def test_invalid_language(self):\n        input_data = {\n            \"number1\": 10,\n            \"number2\": 10,\n            \"language\": \"InvalidLang\"\n        }\n        with self.assertRaises(ValueError):\n            add_two_numbers(input_data)\n\n    def test_non_numeric_number1(self):\n        input_data = {\n            \"number1\": \"ten\",\n            \"number2\": 10,\n            \"language\": \"Python\"\n        }\n        with self.assertRaises(ValueError):\n            add_two_numbers(input_data)\n\n    def test_non_numeric_number2(self):\n        input_data = {\n            \"number1\": 10,\n            \"number2\": \"ten\",\n            \"language\": \"Python\"\n        }\n        with self.assertRaises(ValueError):\n            add_two_numbers(input_data)\n\n\nif __name__ == '__main__':\n    unittest.main()\n"}
+2024-05-29 19:35:51,480 - INFO - Generated unit tests: 
+import unittest
+from generated_script import add_two_numbers
+
+class TestAddTwoNumbers(unittest.TestCase):
+
+    def test_positive_numbers(self):
+        input_data = {
+            "number1": 10,
+            "number2": 20,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": 30
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_negative_numbers(self):
+        input_data = {
+            "number1": -10,
+            "number2": -5,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": -15
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_mixed_sign_numbers(self):
+        input_data = {
+            "number1": 15,
+            "number2": -5,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": 10
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_zero_sum(self):
+        input_data = {
+            "number1": 0,
+            "number2": 0,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": 0
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_large_numbers(self):
+        input_data = {
+            "number1": 1e15,
+            "number2": 1e15,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": 2e15
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_missing_number1(self):
+        input_data = {
+            "number2": 10,
+            "language": "Python"
+        }
+        with self.assertRaises(KeyError):
+            add_two_numbers(input_data)
+
+    def test_missing_number2(self):
+        input_data = {
+            "number1": 10,
+            "language": "Python"
+        }
+        with self.assertRaises(KeyError):
+            add_two_numbers(input_data)
+
+    def test_missing_language(self):
+        input_data = {
+            "number1": 10,
+            "number2": 10,
+        }
+        with self.assertRaises(KeyError):
+            add_two_numbers(input_data)
+
+    def test_invalid_language(self):
+        input_data = {
+            "number1": 10,
+            "number2": 10,
+            "language": "InvalidLang"
+        }
+        with self.assertRaises(ValueError):
+            add_two_numbers(input_data)
+
+    def test_non_numeric_number1(self):
+        input_data = {
+            "number1": "ten",
+            "number2": 10,
+            "language": "Python"
+        }
+        with self.assertRaises(ValueError):
+            add_two_numbers(input_data)
+
+    def test_non_numeric_number2(self):
+        input_data = {
+            "number1": 10,
+            "number2": "ten",
+            "language": "Python"
+        }
+        with self.assertRaises(ValueError):
+            add_two_numbers(input_data)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+2024-05-29 19:35:51,480 - INFO - Saved unit tests to generated_scripts/decdae84/test_script.py
+2024-05-29 19:35:51,480 - INFO - Generating script with prompt:
+
+        Here are the guidelines for the python script you'll be generating:
+        
+1. The script should read JSON input from a file named in the format: (unique identifier)_(timestamp)_(script_name)_input.json.
+2. The script should write JSON output to a file named in the format: (unique identifier)_(timestamp)_(script_name)_output.json.
+3. Error logs should be stored in a file named (unique identifier)_error.json, containing the input data that caused the error, the error message, the script name, and the file location.
+4. All scripts should handle input and output data in JSON format to ensure easy chaining.
+5. The scripts should include detailed logging and error handling to facilitate debugging.
+6. Use return_gpt_response(prompt: str, return_json: bool) to outsource complex tasks to an LLM.
+
+        
+        Following this specification:
+        
+User: write a script that adds two numbers
+LLM: Which programming language would you like the script to be written in?
+User: done
+
+        The input schema:
+        {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "AdditionInput",
+    "description": "JSON schema for the input of a function/script that adds two numbers.",
+    "type": "object",
+    "properties": {
+        "number1": {
+            "description": "The first number to be added.",
+            "type": "number"
+        },
+        "number2": {
+            "description": "The second number to be added.",
+            "type": "number"
+        },
+        "language": {
+            "description": "The programming language of the script.",
+            "type": "string",
+            "enum": [
+                "Python",
+                "JavaScript",
+                "Java",
+                "C++",
+                "Ruby",
+                "Go",
+                "C#",
+                "PHP",
+                "Swift"
+            ]
+        }
+    },
+    "required": [
+        "number1",
+        "number2",
+        "language"
+    ],
+    "additionalProperties": false
+}
+        The output schema:
+        {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "sum": {
+            "type": "number",
+            "description": "The result of adding two numbers provided as input."
+        }
+    },
+    "required": [
+        "sum"
+    ]
+}
+
+        Your code must pass the following unit tests:
+        
+import unittest
+from generated_script import add_two_numbers
+
+class TestAddTwoNumbers(unittest.TestCase):
+
+    def test_positive_numbers(self):
+        input_data = {
+            "number1": 10,
+            "number2": 20,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": 30
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_negative_numbers(self):
+        input_data = {
+            "number1": -10,
+            "number2": -5,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": -15
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_mixed_sign_numbers(self):
+        input_data = {
+            "number1": 15,
+            "number2": -5,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": 10
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_zero_sum(self):
+        input_data = {
+            "number1": 0,
+            "number2": 0,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": 0
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_large_numbers(self):
+        input_data = {
+            "number1": 1e15,
+            "number2": 1e15,
+            "language": "Python"
+        }
+        expected_output = {
+            "sum": 2e15
+        }
+        self.assertEqual(add_two_numbers(input_data), expected_output)
+
+    def test_missing_number1(self):
+        input_data = {
+            "number2": 10,
+            "language": "Python"
+        }
+        with self.assertRaises(KeyError):
+            add_two_numbers(input_data)
+
+    def test_missing_number2(self):
+        input_data = {
+            "number1": 10,
+            "language": "Python"
+        }
+        with self.assertRaises(KeyError):
+            add_two_numbers(input_data)
+
+    def test_missing_language(self):
+        input_data = {
+            "number1": 10,
+            "number2": 10,
+        }
+        with self.assertRaises(KeyError):
+            add_two_numbers(input_data)
+
+    def test_invalid_language(self):
+        input_data = {
+            "number1": 10,
+            "number2": 10,
+            "language": "InvalidLang"
+        }
+        with self.assertRaises(ValueError):
+            add_two_numbers(input_data)
+
+    def test_non_numeric_number1(self):
+        input_data = {
+            "number1": "ten",
+            "number2": 10,
+            "language": "Python"
+        }
+        with self.assertRaises(ValueError):
+            add_two_numbers(input_data)
+
+    def test_non_numeric_number2(self):
+        input_data = {
+            "number1": 10,
+            "number2": "ten",
+            "language": "Python"
+        }
+        with self.assertRaises(ValueError):
+            add_two_numbers(input_data)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+        You must return a JSON object with the generated function/script in the python_code property.
+
+        Here's an example of the returned json object:
+
+        {"python_code": "'\nimport json\nimport requests\nimport datetime\nfrom utils import return_gpt_response\n\ndef read_json(file_path):\n    with open(file_path, \'r\') as file:\n        return json.load(file)\n\ndef write_json(data, file_path):\n    with open(file_path, \'w\') as file:\n        json.dump(data, file, indent=4)\n\ndef log_error(unique_id, input_data, error_message, script_name):\n    error_log = {\n        "script_name": script_name,\n        "input_data": input_data,\n        "error_message": error_message,\n        "file_location": __file__\n    }\n    error_file_path = f"{unique_id}_error.json"\n    write_json(error_log, error_file_path)\n\ndef main(input_file, output_file, unique_id):\n    try:\n        # Read input JSON\n        input_data = read_json(input_file)\n        \n        # Example task 1: API Call\n        api_url = input_data[\'api_url\']\n        api_response = requests.get(api_url)\n        if api_response.status_code != 200:\n            raise Exception(f"API call failed with status code {api_response.status_code}")\n        api_data = api_response.json()\n        \n        # Example task 2: Data Processing with LLM Assistance\n        prompt = f"Process the following data and extract relevant information: {json.dumps(api_data, indent=4)}"\n        processed_data = return_gpt_response(prompt=prompt, return_json=True)\n        processed_data = json.loads(processed_data)\n        \n        # Example task 3: Further Processing\n        processed_data[\'timestamp\'] = datetime.datetime.now().isoformat()\n        \n        # Write output JSON\n        write_json(processed_data, output_file)\n        \n    except Exception as e:\n        log_error(unique_id, input_data, str(e), \'example_script.py\')\n        raise\n\nif __name__ == "__main__":\n    unique_id = "unique_series_identifier"\n    timestamp = datetime.datetime.now().strftime(\'%Y%m%d_%H%M%S\')\n    input_file = f"{unique_id}_{timestamp}_example_script_input.json"\n    output_file = f"{unique_id}_{timestamp}_example_script_output.json"\n    main(input_file, output_file, unique_id)\n'"}
+
+        Just respond with the code such that it can be run directly after escaping it -- it should include all python libraries required to run the code.
+        
+2024-05-29 19:36:04,829 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-05-29 19:36:04,830 - INFO - Raw LLM response: {
+    "python_code": "'\nimport json\nimport datetime\nimport os\n\n\n# Function to read JSON input from a file\n\ndef read_json(file_path):\n    with open(file_path, 'r') as file:\n        return json.load(file)\n\n\n# Function to write JSON output to a file\n\ndef write_json(data, file_path):\n    with open(file_path, 'w') as file:\n        json.dump(data, file, indent=4)\n\n\n# Function to log errors\n\ndef log_error(unique_id, input_data, error_message, script_name, timestamp):\n    error_log = {\n        \"script_name\": script_name,\n        \"input_data\": input_data,\n        \"error_message\": error_message,\n        \"file_location\": os.path.abspath(__file__)\n    }\n    error_file_path = f\"{unique_id}_{timestamp}_error.json\"\n    write_json(error_log, error_file_path)\n\n\n# Main function to add two numbers\n\ndef add_two_numbers(input_data):\n    try:\n        number1 = input_data['number1']\n        number2 = input_data['number2']\n        language = input_data['language']\n\n        if language not in [\"Python\", \"JavaScript\", \"Java\", \"C++\", \"Ruby\", \"Go\", \"C#\", \"PHP\", \"Swift\"]:\n            raise ValueError(\"Unsupported language\")\n\n        if not isinstance(number1, (int, float)):\n            raise ValueError(\"number1 must be a number\")\n\n        if not isinstance(number2, (int, float)):\n            raise ValueError(\"number2 must be a number\")\n\n        result = {\n            \"sum\": number1 + number2\n        }\n\n        return result\n    except KeyError as e:\n        raise KeyError(f\"Missing key: {e}\")\n    except ValueError as e:\n        raise ValueError(str(e))\n\n\n# Entry point of the script\n\ndef main():\n    unique_id = \"unique_series_identifier\"\n    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')\n    script_name = \"add_two_numbers\"\n    input_file = f\"{unique_id}_{timestamp}_{script_name}_input.json\"\n    output_file = f\"{unique_id}_{timestamp}_{script_name}_output.json\"\n\n    try:\n        input_data = read_json(input_file)\n        output_data = add_two_numbers(input_data)\n        write_json(output_data, output_file)\n    except Exception as e:\n        log_error(unique_id, input_data, str(e), script_name, timestamp)\n        raise\n\n\nif __name__ == \"__main__\":\n    main()\n'"
+}
+2024-05-29 19:36:04,830 - INFO - Generated function code: 
+import json
+import datetime
+import os
+
+
+# Function to read JSON input from a file
+
+def read_json(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
+
+# Function to write JSON output to a file
+
+def write_json(data, file_path):
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
+
+# Function to log errors
+
+def log_error(unique_id, input_data, error_message, script_name, timestamp):
+    error_log = {
+        "script_name": script_name,
+        "input_data": input_data,
+        "error_message": error_message,
+        "file_location": os.path.abspath(__file__)
+    }
+    error_file_path = f"{unique_id}_{timestamp}_error.json"
+    write_json(error_log, error_file_path)
+
+
+# Main function to add two numbers
+
+def add_two_numbers(input_data):
+    try:
+        number1 = input_data['number1']
+        number2 = input_data['number2']
+        language = input_data['language']
+
+        if language not in ["Python", "JavaScript", "Java", "C++", "Ruby", "Go", "C#", "PHP", "Swift"]:
+            raise ValueError("Unsupported language")
+
+        if not isinstance(number1, (int, float)):
+            raise ValueError("number1 must be a number")
+
+        if not isinstance(number2, (int, float)):
+            raise ValueError("number2 must be a number")
+
+        result = {
+            "sum": number1 + number2
+        }
+
+        return result
+    except KeyError as e:
+        raise KeyError(f"Missing key: {e}")
+    except ValueError as e:
+        raise ValueError(str(e))
+
+
+# Entry point of the script
+
+def main():
+    unique_id = "unique_series_identifier"
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    script_name = "add_two_numbers"
+    input_file = f"{unique_id}_{timestamp}_{script_name}_input.json"
+    output_file = f"{unique_id}_{timestamp}_{script_name}_output.json"
+
+    try:
+        input_data = read_json(input_file)
+        output_data = add_two_numbers(input_data)
+        write_json(output_data, output_file)
+    except Exception as e:
+        log_error(unique_id, input_data, str(e), script_name, timestamp)
+        raise
+
+
+if __name__ == "__main__":
+    main()
+
+2024-05-29 19:36:04,947 - INFO - Generated script passes all unit tests.
+2024-05-29 19:36:04,947 - INFO - Saved generated script to generated_scripts/decdae84/final_script.py
